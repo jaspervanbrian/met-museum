@@ -1,8 +1,12 @@
 import React from "react";
 import logo from "./logo.svg";
+import useObjects from "hooks/useObjects";
+
 import "./App.css";
 
 function App() {
+  const obj = useObjects();
+
   return (
     <div className="App">
       <header className="App-header">
