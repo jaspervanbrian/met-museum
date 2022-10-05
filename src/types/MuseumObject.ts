@@ -19,7 +19,7 @@ interface Measurement {
 interface Tag {
   term?: string;
   AAT_URL?: string;
-  Wikidata_URL: string;
+  Wikidata_URL?: string;
 }
 
 export interface MuseumObject {
@@ -28,8 +28,8 @@ export interface MuseumObject {
   accessionNumber?: string;
   accessionYear?: string;
   isPublicDomain?: boolean;
-  primaryImage?: boolean;
-  primaryImageSmall?: boolean;
+  primaryImage?: string;
+  primaryImageSmall?: string;
   additionalImages?: string[];
   constituents?: Constituent[];
   department?: string;
@@ -80,4 +80,7 @@ export interface MuseumObject {
   objectWikidata_URL: string;
   isTimelineWork?: boolean;
   GalleryNumber?: string;
+
+  // Transient field for unresolved museum object
+  notFound?: boolean;
 }

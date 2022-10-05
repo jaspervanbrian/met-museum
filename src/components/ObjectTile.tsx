@@ -1,17 +1,46 @@
-const ObjectTile = ({ museumObject }: any) => {
-  if (!museumObject) return null;
+import React from "react";
+import { MuseumObject } from "types/MuseumObject";
 
-  return (
-    <a href={museumObject.href} className="group">
-      <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-w-7 xl:aspect-h-8">
+interface ObjectTileProps {
+  page?: number;
+  museumObject?: MuseumObject;
+  ref?: React.LegacyRef<HTMLAnchorElement>;
+}
+
+const ObjectTile = React.forwardRef(
+  (
+    { museumObject }: ObjectTileProps,
+    ref: React.LegacyRef<HTMLAnchorElement>
+  ) => {
+    if (
+      !museumObject ||
+      !(museumObject?.primaryImage || museumObject.primaryImageSmall)
+    ) {
+      return null;
+    }
+
+    const tile = (
+      <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200 xl:aspect-w-7 xl:aspect-h-8">
         <img
-          src={museumObject.primaryImage}
+          src={museumObject.primaryImage ?? museumObject.primaryImageSmall}
           alt={museumObject.title}
-          className="h-full w-full object-cover object-center group-hover:opacity-75"
+          className="h-80 sm:h-60 lg:h-72 xl:h-80 w-full object-contain object-center group-hover:opacity-75"
         />
       </div>
-    </a>
-  );
-};
+    );
+
+    const component = ref ? (
+      <a href="#!" ref={ref} className="group">
+        {tile}
+      </a>
+    ) : (
+      <a href="#!" className="group">
+        {tile}
+      </a>
+    );
+
+    return component;
+  }
+);
 
 export default ObjectTile;
