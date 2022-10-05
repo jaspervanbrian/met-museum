@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { MuseumObject } from "types/MuseumObject";
 import { getObjects, getObject } from "services/Museum";
 import { setFromCache, getFromCache } from "utils/Cache";
@@ -19,6 +19,11 @@ const useObjects = () => {
   const [validObjectIds, setValidObjectIds] = useState<number[]>([]);
   const [objectDictionary, setObjectDictionary] =
     useState<Record<string, MuseumObject>>();
+
+  const hasNextPage = useMemo(() => {
+    const currentObjectsCovered = page * OBJECTS_PER_PAGE;
+    return currentObjectsCovered < (objectIds?.length ?? 0);
+  }, [page, objectIds]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -51,6 +56,7 @@ const useObjects = () => {
   }, []);
 
   useEffect(() => {
+    setIsLoading(true);
     const abortController = new AbortController();
     const { signal } = abortController;
 
@@ -113,16 +119,18 @@ const useObjects = () => {
 
       setValidObjectIds((state) => {
         const newState = [...state, ...tempValidObjIds];
-        if (newState.length < OBJECTS_PER_PAGE) nextPage();
+        if (newState.length < OBJECTS_PER_PAGE && hasNextPage) nextPage();
 
         return newState;
       });
 
       setObjectDictionary((state) => ({ ...state, ...tempObjDictionary }));
+
+      setIsLoading(false);
     });
 
     return () => abortController.abort();
-  }, [page, objectIds]);
+  }, [page, objectIds, hasNextPage]);
 
   const nextPage = () => {
     setPage((page) => page + 1);
@@ -136,6 +144,7 @@ const useObjects = () => {
     objectIds,
     objectDictionary,
     validObjectIds,
+    hasNextPage,
   };
 };
 
