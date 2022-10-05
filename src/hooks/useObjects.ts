@@ -8,7 +8,9 @@ const OBJECTS_PER_PAGE = 40;
 const useObjects = (page = 1) => {
   const [isLoading, setIsLoading] = useState(false);
   const [objectIds, setObjectIds] = useState<number[]>();
-  const [objectStore, setObjectStore] = useState<MuseumObject[]>();
+  const [objectStore, setObjectStore] = useState<number[]>();
+  const [objectDictionary, setObjectDictionary] =
+    useState<Record<string, MuseumObject>>();
   const [error, setError] = useState({});
 
   const { setFromCache, getFromCache } = useCache();
@@ -42,6 +44,7 @@ const useObjects = (page = 1) => {
     isLoading,
     objectIds,
     objectStore,
+    objectDictionary,
     error,
   };
 };
