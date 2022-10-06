@@ -142,9 +142,31 @@ const ObjectList = ({ searchBarVisible }: ObjectListProps) => {
 
       {!initialLoading &&
         !searchLoading &&
-        (validObjectIds.length > 0 || validSearchObjectIds.length > 0) && (
+        !search &&
+        validObjectIds.length > 0 && (
           <div className="grid grid-cols-1 gap-y-20 gap-x-20 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-            {validSearchObjectIds.length > 0 ? searchObjectTiles : objectTiles}
+            {objectTiles}
+          </div>
+        )}
+
+      {!initialLoading &&
+        !searchLoading &&
+        search &&
+        validSearchObjectIds.length > 0 && (
+          <div className="grid grid-cols-1 gap-y-20 gap-x-20 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+            {searchObjectTiles}
+          </div>
+        )}
+
+      {!initialLoading &&
+        !searchLoading &&
+        !isLoading &&
+        search &&
+        validSearchObjectIds.length === 0 && (
+          <div className="mt-12 flex justify-center items-center flex-col">
+            <h4 className="font-semibold mt-3">
+              No results found for "{search}"
+            </h4>
           </div>
         )}
 

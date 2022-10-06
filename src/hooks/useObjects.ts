@@ -48,6 +48,38 @@ const useObjects = () => {
     setSearchPage((page) => page + 1);
   };
 
+  const loadObject = (id: number, options = {}) => {
+    return new Promise((resolve) => {
+      const cachedObject = getFromCache(`museumObject-${id}`);
+      const emptyObj = { objectID: id, notFound: true };
+
+      if (
+        cachedObject &&
+        (cachedObject.primaryImage || cachedObject.primaryImageSmall) &&
+        !cachedObject?.notFound
+      ) {
+        resolve(cachedObject);
+      } else if (cachedObject?.notFound) {
+        resolve(emptyObj);
+      } else {
+        getObject(id, options)
+          .then(({ data }) => {
+            if (data && (data.primaryImage || data.primaryImageSmall)) {
+              setFromCache(`museumObject-${data.objectID}`, data);
+              resolve(data);
+            } else {
+              setFromCache(`museumObject-${id}`, emptyObj);
+              resolve(emptyObj);
+            }
+          })
+          .catch(() => {
+            setFromCache(`museumObject-${id}`, emptyObj);
+            resolve(emptyObj);
+          });
+      }
+    });
+  };
+
   const handleSearchChange = useRef(
     debounce(async (search: string) => {
       setSearchLoading(true);
@@ -64,7 +96,7 @@ const useObjects = () => {
       const { data } = await searchObjectsWithImages(search);
       setSearchPage(1);
       setValidSearchObjectIds([]);
-      setSearchObjectIds(data?.objectIDs);
+      setSearchObjectIds(data?.objectIDs ?? []);
       setSearchLoading(false);
     }, 300)
   ).current;
@@ -118,45 +150,13 @@ const useObjects = () => {
     const tempValidObjIds: number[] = [];
     const tempObjDictionary: Record<number, MuseumObject> = {};
 
-    const loadObject = (id: number) => {
-      return new Promise((resolve) => {
-        const cachedObject = getFromCache(`museumObject-${id}`);
-        const emptyObj = { objectID: id, notFound: true };
-
-        if (
-          cachedObject &&
-          (cachedObject.primaryImage || cachedObject.primaryImageSmall) &&
-          !cachedObject?.notFound
-        ) {
-          resolve(cachedObject);
-        } else if (cachedObject?.notFound) {
-          resolve(emptyObj);
-        } else {
-          getObject(id, { signal })
-            .then(({ data }) => {
-              if (data && (data.primaryImage || data.primaryImageSmall)) {
-                setFromCache(`museumObject-${data.objectID}`, data);
-                resolve(data);
-              } else {
-                setFromCache(`museumObject-${id}`, emptyObj);
-                resolve(emptyObj);
-              }
-            })
-            .catch(() => {
-              setFromCache(`museumObject-${id}`, emptyObj);
-              resolve(emptyObj);
-            });
-        }
-      });
-    };
-
     if ((objectIds ?? []).length > 0) {
       const start = page * OBJECTS_PER_PAGE - OBJECTS_PER_PAGE;
       const end = page * OBJECTS_PER_PAGE - 1;
 
       for (let i = start; i < end; i++) {
         if (objectIds?.[i]) {
-          objectResolver.push(loadObject(objectIds[i]));
+          objectResolver.push(loadObject(objectIds[i], { signal }));
         }
       }
     }
@@ -195,45 +195,13 @@ const useObjects = () => {
     const tempValidObjIds: number[] = [];
     const tempObjDictionary: Record<number, MuseumObject> = {};
 
-    const loadObject = (id: number) => {
-      return new Promise((resolve) => {
-        const cachedObject = getFromCache(`museumObject-${id}`);
-        const emptyObj = { objectID: id, notFound: true };
-
-        if (
-          cachedObject &&
-          (cachedObject.primaryImage || cachedObject.primaryImageSmall) &&
-          !cachedObject?.notFound
-        ) {
-          resolve(cachedObject);
-        } else if (cachedObject?.notFound) {
-          resolve(emptyObj);
-        } else {
-          getObject(id, { signal })
-            .then(({ data }) => {
-              if (data && (data.primaryImage || data.primaryImageSmall)) {
-                setFromCache(`museumObject-${data.objectID}`, data);
-                resolve(data);
-              } else {
-                setFromCache(`museumObject-${id}`, emptyObj);
-                resolve(emptyObj);
-              }
-            })
-            .catch(() => {
-              setFromCache(`museumObject-${id}`, emptyObj);
-              resolve(emptyObj);
-            });
-        }
-      });
-    };
-
     if ((searchObjectIds ?? []).length > 0) {
       const start = searchPage * OBJECTS_PER_PAGE - OBJECTS_PER_PAGE;
       const end = searchPage * OBJECTS_PER_PAGE - 1;
 
       for (let i = start; i < end; i++) {
         if (searchObjectIds?.[i]) {
-          objectResolver.push(loadObject(searchObjectIds[i]));
+          objectResolver.push(loadObject(searchObjectIds[i], { signal }));
         }
       }
     }
