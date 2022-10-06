@@ -41,13 +41,13 @@ const ObjectModal = ({
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-xl lg:max-w-2xl xl:max-w-3xl sm:p-6">
+                <Dialog.Panel className="relative transform overflow-hidden bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-xl lg:max-w-2xl xl:max-w-3xl sm:p-6">
                   <div className="flex gap-x-10 sm:gap-x-10 lg:gap-x-20 xl:gap-x-10 justify-between items-stretch">
                     <div className="flex flex-col gap-y-6 justify-between">
                       <h3 className="font-medium text-sm italic">
                         {museumObject.department}
                       </h3>
-                      <div className="flex flex-col gap-y-4">
+                      <div className="flex flex-col gap-y-4 max-w-md">
                         <h1 className="font-bold sm:text-base lg:text-xl xl:text-3xl">
                           {museumObject.title}
                         </h1>
