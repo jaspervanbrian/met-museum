@@ -1,9 +1,15 @@
-import { useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import useObjects from "hooks/useObjects";
+
 import ObjectTile from "components/ObjectTile";
+import ObjectModal from "components/ObjectModal";
 import LoadingSpinner from "components/LoadingSpinner";
 
+import { MuseumObject } from "types/MuseumObject";
+
 const ObjectList = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedObject, setSelectedObject] = useState<MuseumObject>();
   const {
     nextPage,
     initialLoading,
@@ -38,6 +44,10 @@ const ObjectList = () => {
           key={museumObjectId}
           ref={lastTileRef}
           museumObject={objectDictionary?.[museumObjectId]}
+          onClick={() => {
+            setSelectedObject(objectDictionary?.[museumObjectId]);
+            setModalOpen(true);
+          }}
         />
       );
     }
@@ -46,6 +56,10 @@ const ObjectList = () => {
       <ObjectTile
         key={museumObjectId}
         museumObject={objectDictionary?.[museumObjectId]}
+        onClick={() => {
+          setSelectedObject(objectDictionary?.[museumObjectId]);
+          setModalOpen(true);
+        }}
       />
     );
   });
@@ -53,6 +67,11 @@ const ObjectList = () => {
   return (
     <div className="mx-auto max-w-2xl py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
       <h2 className="sr-only">Museum Objects</h2>
+      <ObjectModal
+        isOpen={modalOpen}
+        closeModal={() => setModalOpen(false)}
+        museumObject={selectedObject}
+      />
 
       {!initialLoading && objectDictionary && (
         <div className="grid grid-cols-1 gap-y-20 gap-x-20 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
