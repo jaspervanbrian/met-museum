@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo, ChangeEvent } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import debounce from "lodash.debounce";
 
 import { MuseumObject } from "types/MuseumObject";
