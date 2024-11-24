@@ -14,7 +14,7 @@ const OBJECTS_PER_PAGE = 20;
 const useObjects = () => {
   // React 18 updated where useEffect is being ran twice on init
   // Need to make sure we prevent that by using useRef
-  const effectRun = useRef(false);
+  // const effectRun = useRef(false);
 
   const [page, setPage] = useState<number>(1);
   const [searchPage, setSearchPage] = useState<number>(1);
@@ -112,9 +112,6 @@ const useObjects = () => {
   }, [searchPage, searchObjectIds]);
 
   useEffect(() => {
-    const abortController = new AbortController();
-    const { signal } = abortController;
-
     const loadAllObjectIds = async () => {
       setInitialLoading(true);
       const cachedObjectIds = getFromCache("allObjectIds");
@@ -122,23 +119,23 @@ const useObjects = () => {
       if (Array.isArray(cachedObjectIds) && cachedObjectIds.length > 0) {
         setObjectIds(cachedObjectIds);
       } else {
-        const { data } = await getObjects({ signal });
-        setFromCache("allObjectIds", data?.objectIDs);
-        setObjectIds(data?.objectIDs);
+        try {
+          const { data } = await getObjects();
+          setFromCache("allObjectIds", data?.objectIDs);
+          setObjectIds(data?.objectIDs);
+        } catch (error: any) {
+          if (error.name !== "AbortError") {
+            console.log(error)
+          }
+        }
       }
 
       setInitialLoading(false);
     };
 
-    // Check if useEffect has run the first time
-    if (effectRun.current) {
-      loadAllObjectIds();
-    }
+    loadAllObjectIds();
 
-    return () => {
-      abortController.abort();
-      effectRun.current = true;
-    };
+    return () => {};
   }, []);
 
   useEffect(() => {
