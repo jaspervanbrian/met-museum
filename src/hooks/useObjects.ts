@@ -16,6 +16,7 @@ const useObjects = () => {
   // Need to make sure we prevent that by using useRef
   // const effectRun = useRef(false);
 
+  const abortControllerRef = useRef<AbortController>(new AbortController());
   const [page, setPage] = useState<number>(1);
   const [searchPage, setSearchPage] = useState<number>(1);
   const [initialLoading, setInitialLoading] = useState(false);
@@ -114,13 +115,17 @@ const useObjects = () => {
   useEffect(() => {
     const loadAllObjectIds = async () => {
       setInitialLoading(true);
+
+      abortControllerRef.current = new AbortController();
+      const { signal } = abortControllerRef.current;
+
       const cachedObjectIds = getFromCache("allObjectIds");
 
       if (Array.isArray(cachedObjectIds) && cachedObjectIds.length > 0) {
         setObjectIds(cachedObjectIds);
       } else {
         try {
-          const { data } = await getObjects();
+          const { data } = await getObjects({ signal });
           setFromCache("allObjectIds", data?.objectIDs);
           setObjectIds(data?.objectIDs);
         } catch (error: any) {
@@ -135,13 +140,13 @@ const useObjects = () => {
 
     loadAllObjectIds();
 
-    return () => {};
+    return () => abortControllerRef.current.abort();
   }, []);
 
   useEffect(() => {
     setIsLoading(true);
-    const abortController = new AbortController();
-    const { signal } = abortController;
+    abortControllerRef.current = new AbortController();
+    const { signal } = abortControllerRef.current;
 
     const objectResolver = [];
     const tempValidObjIds: number[] = [];
@@ -180,13 +185,13 @@ const useObjects = () => {
       setIsLoading(false);
     });
 
-    return () => abortController.abort();
+    return () => abortControllerRef.current.abort();
   }, [page, objectIds, hasNextPage]);
 
   useEffect(() => {
     setIsLoading(true);
-    const abortController = new AbortController();
-    const { signal } = abortController;
+    abortControllerRef.current = new AbortController();
+    const { signal } = abortControllerRef.current;
 
     const objectResolver = [];
     const tempValidObjIds: number[] = [];
@@ -226,7 +231,7 @@ const useObjects = () => {
       setIsLoading(false);
     });
 
-    return () => abortController.abort();
+    return () => abortControllerRef.current.abort();
   }, [searchPage, searchObjectIds, hasNextSearchPage]);
 
   useEffect(() => {
